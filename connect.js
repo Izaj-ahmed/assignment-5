@@ -494,3 +494,87 @@ document.getElementById("Call-btn-9").addEventListener("click",function(e){
     
 })
 
+
+
+
+// Clear-Button
+
+document.getElementById("clear-history-btn").addEventListener("click",function(){
+    const transactionContainer = document.getElementById("history-container");
+    transactionContainer.innerHTML="";
+    if (typeof historyData !=="undefined"){
+        historyData.length = 0;
+    }
+})
+
+
+
+
+
+// copy 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const copyCounterEl = document.getElementById("copy-amount");
+  function fallbackCopyText(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    ta.style.top = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+  document.addEventListener("click", async (ev) => {
+    const btn = ev.target.closest(".copy-btn");
+    if (!btn) return;          
+    ev.preventDefault();
+    const card = btn.closest(".bg-white") || btn.closest(".card");
+    if (!card) return;
+    const mode = (btn.dataset.copy || "num").toLowerCase();
+    const numEl  = card.querySelector('[id^="service-num"], .service-num, .service-number, h3');
+    const nameEl = card.querySelector('[id^="service-name"], .service-name, .service-title, h4');
+    let textToCopy = "";
+    if (mode === "both") {
+      const nameText = nameEl?.textContent?.trim() || "";
+      const numText = numEl?.textContent?.trim() || "";
+      textToCopy = nameText && numText ? `${nameText} - ${numText}` : nameText || numText;
+    } else if (mode === "name") {
+      textToCopy = nameEl?.textContent?.trim() || "";
+    } else { 
+      textToCopy = numEl?.textContent?.trim() || "";
+    }
+
+    if (!textToCopy) {
+      btn.setAttribute("aria-live", "polite");
+      const orig = btn.innerHTML;
+      btn.innerHTML = 'Nothing to copy';
+      setTimeout(() => (btn.innerHTML = orig), 1200);
+      return;
+    }
+    let success = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(textToCopy);
+        success = true;
+      }
+    } catch (err) {
+      success = false;
+    }
+    if (!success) success = fallbackCopyText(textToCopy);
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = success ? "Copied!" : "Copy failed";
+    setTimeout(() => { btn.innerHTML = originalHTML; }, 1200);
+  });
+});
+
+
+
+
+
+
+
